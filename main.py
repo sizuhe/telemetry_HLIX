@@ -6,12 +6,12 @@ print("Empezando a tomar datos del Don Ardui...")
 
 serialInst = serial.Serial()
 serialInst.baudrate = 9600
-serialInst.port = "COM3"    # Puerto donde esta conectado el Arduino Uno.
+serialInst.port = "COM3"    # Puerto donde esta conectado el Arduino Uno
 serialInst.open()
 
 matrix = True
-tiempoFinal = 0
-tiempo = 0      # Segundos
+tiempoFinal = 0     # TIMEOUT
+tiempo = 0
 ltiempo = []
 lalti = []
 lpres= []

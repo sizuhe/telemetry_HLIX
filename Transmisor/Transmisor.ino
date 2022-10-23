@@ -13,10 +13,10 @@ unsigned long tiempoactual = 0;
 float datos[7];   // Array con 8 variables
 String coma = ",";    // Lit, es una coma
 
-//create an RF24 object
+// Create an RF24 object
 RF24 radio(9, 8);  // CE, CSN
 
-//address through which two modules communicate.
+// Address through which two modules communicate.
 const byte address[6] = "00001";
 
 // =============
@@ -26,9 +26,10 @@ void setup()
   Serial.begin(9600);
   radio.begin();
   
-  //set the address
+  // Set the address
   radio.openWritingPipe(address);
   
+
   // ************************
   // MPU6500
   if(!myMPU6500.init()){
@@ -52,6 +53,7 @@ void setup()
   myMPU6500.enableAccDLPF(true);  // Digital Low Pass Filter activado
   myMPU6500.setAccDLPF(MPU6500_DLPF_6);  // Usando nivel 6 de filtro, este es el de menor ruido
   
+
   // ************************
   // BMP 180
   // Initialize the sensor (it is important to get calibration values stored on the device).
@@ -72,7 +74,6 @@ void loop()
 {
   float temp,pres,alt;
   int verif = 0;
-  int cont = 0;
   
   // BMP 180
   temp = bmp.readTemperature();
@@ -82,14 +83,17 @@ void loop()
   // MPU6500
   xyzFloat gValue = myMPU6500.getGValues();
   xyzFloat gyr = myMPU6500.getGyrValues();
-  // float resultantG = myMPU6500.getResultantG(gValue);  // En caso de querer el valor de la resultante para G
+  // float resultantG = myMPU6500.getResultantG(gValue);  // Resultante de G
 
 
-  // PRIMER PACKET DE DATOS - PACKET1
+  // PACKET1
   datos[0] = verif;
   datos[1] = alt;
   datos[2] = pres/100;
   datos[3] = temp;
+
+  // Enviando los datos al receptor
+  radio.write(&datos, sizeof(datos));
 
   // // Mostrando los datos cada segundo (FOR DEBUG)
   // if (millis() - tiempoactual >= 1000){
@@ -101,15 +105,11 @@ void loop()
   //   Serial.println(datos[2]);
   //   Serial.print("Temperatura [ºC]: ");
   //   Serial.println(datos[3]);
-  //   cont = 1;
   //   tiempoactual = millis();
   // }
 
-  // Enviando los datos al receptor
-  radio.write(&datos, sizeof(datos));
 
-
-  // SEGUNDO PACKET DE DATOS - PACKET2
+  // PACKET2
   verif = 1;
   datos[0] = verif;
   datos[1] = gValue.x;
@@ -123,7 +123,7 @@ void loop()
   radio.write(&datos, sizeof(datos));
 
   // // Mostrando los datos cada segundo (FOR DEBUG)
-  // if (cont == 1){
+  // if (verif == 1){
   //   Serial.println(verif);
   //   Serial.print("Aceleración (x,y,z) [G]: ");
   //   Serial.println(datos[1] + coma + datos[2] + coma + datos[3]);

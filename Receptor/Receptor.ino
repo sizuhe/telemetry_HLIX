@@ -7,10 +7,10 @@ unsigned long tiempoactual = 0;
 float datos[7];    // Array con 8 variables
 String coma = ",";   // Pues, es una coma
 
-// create an RF24 object
+// Create an RF24 object
 RF24 radio(9, 8);  // CE, CSN
 
-// address through which two modules communicate.
+// Address through which two modules communicate.
 const byte address[6] = "00001";
 
 // =============
@@ -20,7 +20,7 @@ void setup()
   Serial.begin(9600);
   radio.begin();
   
-  // set the address
+  // Set the address
   radio.openReadingPipe(0, address);
   
   // Set module as receiver
@@ -38,7 +38,6 @@ void loop()
   {
     radio.read(&datos, sizeof(datos));
 
-    // Diferenciando los datos entrantes segun el primero de ellos
     // PACKET1
     if (datos[0] == 0){
       alt = datos[1];
