@@ -9,9 +9,8 @@
 Adafruit_BMP085 bmp;
 MPU6500_WE myMPU6500 = MPU6500_WE(MPU6500_ADDR);
 
-unsigned long tiempoactual = 0;
-float datos[7];   // Array con 8 variables
-String coma = ",";    // Lit, es una coma
+unsigned long timeReal = 0;
+float dataPacket[7];
 
 // Create an RF24 object
 RF24 radio(9, 8);  // CE, CSN
@@ -40,18 +39,18 @@ void setup()
   }
   
   Serial.println("Calibrating MPU6500...");
-  myMPU6500.autoOffsets();  // Autocalibracion de los sensores
+  myMPU6500.autoOffsets();  // MPU6500 autocalibration
   delay(1000);
   
   Serial.println("MPU6500 is ready");
   
-  myMPU6500.enableGyrDLPF();  // Digital Low Pass Filter activado
-  myMPU6500.setGyrDLPF(MPU6500_DLPF_6);  // Usando nivel 6 de filtro, este es el de menor ruido
+  myMPU6500.enableGyrDLPF();  // Digital Low Pass Filter activated
+  myMPU6500.setGyrDLPF(MPU6500_DLPF_6);  // Less noise mode
   myMPU6500.setSampleRateDivider(5);   
   myMPU6500.setGyrRange(MPU6500_GYRO_RANGE_250);
   myMPU6500.setAccRange(MPU6500_ACC_RANGE_2G);
-  myMPU6500.enableAccDLPF(true);  // Digital Low Pass Filter activado
-  myMPU6500.setAccDLPF(MPU6500_DLPF_6);  // Usando nivel 6 de filtro, este es el de menor ruido
+  myMPU6500.enableAccDLPF(true);  // Digital Low Pass Filter activated
+  myMPU6500.setAccDLPF(MPU6500_DLPF_6);  // Less noise mode
   
 
   // ************************
@@ -87,47 +86,24 @@ void loop()
 
 
   // PACKET1
-  datos[0] = verif;
-  datos[1] = alt;
-  datos[2] = pres/100;
-  datos[3] = temp;
+  dataPacket[0] = verif;
+  dataPacket[1] = alt;
+  dataPacket[2] = pres/100;
+  dataPacket[3] = temp;
 
-  // Enviando los datos al receptor
-  radio.write(&datos, sizeof(datos));
-
-  // // Mostrando los datos cada segundo (FOR DEBUG)
-  // if (millis() - tiempoactual >= 1000){
-  //   Serial.println("--------------------");
-  //   Serial.println(verif);
-  //   Serial.print("Altitud [m]: ");
-  //   Serial.println(datos[1]);
-  //   Serial.print("Presion atmosferica [hPa]: ");
-  //   Serial.println(datos[2]);
-  //   Serial.print("Temperatura [ºC]: ");
-  //   Serial.println(datos[3]);
-  //   tiempoactual = millis();
-  // }
-
+  // Sending PACKET1 to receptor
+  radio.write(&dataPacket, sizeof(dataPacket));
 
   // PACKET2
   verif = 1;
-  datos[0] = verif;
-  datos[1] = gValue.x;
-  datos[2] = gValue.y;
-  datos[3] = gValue.z;
-  datos[4] = gyr.x;
-  datos[5] = gyr.y;
-  datos[6] = gyr.z;
+  dataPacket[0] = verif;
+  dataPacket[1] = gValue.x;
+  dataPacket[2] = gValue.y;
+  dataPacket[3] = gValue.z;
+  dataPacket[4] = gyr.x;
+  dataPacket[5] = gyr.y;
+  dataPacket[6] = gyr.z;
 
-  // Enviando los datos al receptor
-  radio.write(&datos, sizeof(datos));
-
-  // // Mostrando los datos cada segundo (FOR DEBUG)
-  // if (verif == 1){
-  //   Serial.println(verif);
-  //   Serial.print("Aceleración (x,y,z) [G]: ");
-  //   Serial.println(datos[1] + coma + datos[2] + coma + datos[3]);
-  //   Serial.print("Giroscopio [º/s]: ");
-  //   Serial.println(datos[4] + coma + datos[5] + coma + datos[6]);
-  // }
+  // Sending PACKET2 to receptor
+  radio.write(&dataPacket, sizeof(dataPacket));
 }

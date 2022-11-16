@@ -2,89 +2,89 @@ import serial.tools.list_ports
 import matplotlib.pyplot as plt
 
 
-print("Empezando a tomar datos del Don Ardui...")
+
+print("Starting...")
 
 serialInst = serial.Serial()
 serialInst.baudrate = 9600
-serialInst.port = "COM4"    # Puerto donde esta conectado el Arduino Uno
+serialInst.port = "COM4"    # Arduino port
 serialInst.open()
 
 matrix = True
-tiempoFinal = 0     # TIMEOUT
-tiempo = 0
-ltiempo = []
-lalti = []
-lpres= []
-ltemp = []
-lacelx = []
-lacely = []
-lacelz = []
-lgirx = []
-lgiry = []
-lgirz = []
-laltu = []
+timeTIMEOUT = 0
+timeRead = 0
+timesList = []
+altitudeList = []
+pressureList= []
+temperatureList = []
+acelerationxList = []
+acelerationyList = []
+acelerationzList = []
+girxList = []
+giryList = []
+girzList = []
+altitudeList = []
 
 while matrix == True:    
     if serialInst.in_waiting:
-        tiempoFinal = 0
+        timeTIMEOUT = 0
         pos = 0
         
-        # Leer y decodificar la informacion del puerto serial
+        # Reading and decoding incoming data
         packet = serialInst.readline()
         packet = packet.decode("utf")
         packet = packet.split(',')
         
-        # Tiempo durante el cual se han tomado datos
-        print(f"Tiempo: {tiempo} s")
-        ltiempo.append(tiempo)
+        # Time passed since datasave start
+        print(f"Time: {timeRead} s")
+        timesList.append(timeRead)
 
-        # Se agregan los datos a las variables respectivas
-        lalti.append(float(packet[0]))
-        lpres.append(float(packet[1]))
-        ltemp.append(float(packet[2]))
-        lacelx.append(float(packet[3]))
-        lacely.append(float(packet[4]))
-        lacelz.append(float(packet[5]))
-        lgirx.append(float(packet[6]))
-        lgiry.append(float(packet[7]))
-        lgirz.append(float(packet[8]))
+        # Adding data to respective variables
+        altitudeList.append(float(packet[0]))
+        pressureList.append(float(packet[1]))
+        temperatureList.append(float(packet[2]))
+        acelerationxList.append(float(packet[3]))
+        acelerationyList.append(float(packet[4]))
+        acelerationzList.append(float(packet[5]))
+        girxList.append(float(packet[6]))
+        giryList.append(float(packet[7]))
+        girzList.append(float(packet[8]))
 
-        # Tiempo (segundos) durante el cual se tomaran datos
-        if tiempo == 30:
+        # Time duration [seconds] of function
+        if timeRead == 30:
             break
         
-        # Agregar medio segundo al contador
-        tiempo += 0.5
+        # Adding half a second
+        timeRead += 0.5
     
-    # En caso de que haya un error en la toma de datos - TIMEOUT DE COMUNICACION
-    # Si se dejan de recibir datos al puerto serial por alrededor de 30 segundos
-    # se corta el programa y se guardan los datos obtenidos hasta el momento
+    # Communication timeout
+    # If data stops coming the function will stop after 30 seconds and data will be saved
     while serialInst.in_waiting == 0:
-        tiempoFinal += 1
-        if tiempoFinal >= 4000000:
-            print("Mor, hubo un error asi que vamos a acabar el proceso de toma de datos")
-            tiempoFinal = 0
+        timeTIMEOUT += 1
+        if timeTIMEOUT >= 4000000:
+            print("TIMEOUT - Data reading stopped")
+            timeTIMEOUT = 0
             matrix = False
             break
                  
-print("Papi, finalizamos la toma de datos")
+print("Data reading finalized")
 
-# Promedios de los datos
-promtemp = round(sum(ltemp)/len(ltemp),2)
-prompres = round(sum(lpres)/len(lpres),2)
-promalti = round(sum(lalti)/len(lalti),2)
+# Data averages
+temperatureAverage = round(sum(temperatureList)/len(temperatureList),2)
+pressureAverage = round(sum(pressureList)/len(pressureList),2)
+altitudeAverage = round(sum(altitudeList)/len(altitudeList),2)
 
-# Para calcular la altura
-alt0 = (lalti[0]+lalti[1]+lalti[2])/3   # "Calibracion" de la altura inicial
-for altitudMedida in lalti:
-    altura = round(altitudMedida - alt0,2)
-    laltu.append(altura)
-promaltu = round(sum(laltu)/len(laltu),2)
+# Height calculation
+alt0 = (altitudeList[0]+altitudeList[1]+altitudeList[2])/3   # Height "calibration"
+for altitudeRead in altitudeList:
+    height = round(altitudeRead - alt0,2)
+    altitudeList.append(height)
+heightAverage = round(sum(altitudeList)/len(altitudeList),2)
 
-
-# GRAFICAS
-plt.plot(ltiempo,lalti)
-plt.axhline(y=promalti,color="r")
+# ==============================
+# GRAPHS (Spanish)
+plt.plot(timesList,altitudeList)
+plt.axhline(y=altitudeAverage,color="r")
 plt.title("Altitud durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Altitud [m]")
@@ -92,8 +92,8 @@ plt.tight_layout()
 plt.savefig("Grafica de altitud.pdf")
 plt.show()
 
-plt.plot(ltiempo,laltu)
-plt.axhline(y=promaltu,color="r")
+plt.plot(timesList,altitudeList)
+plt.axhline(y=heightAverage,color="r")
 plt.title("Altura durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Altura [m]")
@@ -101,8 +101,8 @@ plt.tight_layout()
 plt.savefig("Grafica de altura.pdf")
 plt.show()
 
-plt.plot(ltiempo,lpres)
-plt.axhline(y=prompres,color="r")
+plt.plot(timesList,pressureList)
+plt.axhline(y=pressureAverage,color="r")
 plt.title("Presion atmosferica durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Presion [hPa]")
@@ -110,8 +110,8 @@ plt.tight_layout()
 plt.savefig("Grafica de presion atmosferica.pdf")
 plt.show()
 
-plt.plot(ltiempo,ltemp)
-plt.axhline(y=promtemp,color="r")
+plt.plot(timesList,temperatureList)
+plt.axhline(y=temperatureAverage,color="r")
 plt.title("Temperatura durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Temperatura [C]")
@@ -120,8 +120,8 @@ plt.savefig("Grafica de temperatura.pdf")
 plt.show()
 
 
-# Acelerometro
-plt.plot(ltiempo,lacelx)
+# Accelerometer
+plt.plot(timesList,acelerationxList)
 plt.title("Aceleraciones en el eje x durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Aceleracion en eje x [G]")
@@ -129,7 +129,7 @@ plt.tight_layout()
 plt.savefig("Grafica de acelx.pdf")
 plt.show()
 
-plt.plot(ltiempo,lacely)
+plt.plot(timesList,acelerationyList)
 plt.title("Aceleraciones en el eje y durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Aceleracion en eje y [G]")
@@ -137,7 +137,7 @@ plt.tight_layout()
 plt.savefig("Grafica de acely.pdf")
 plt.show()
 
-plt.plot(ltiempo,lacelz)
+plt.plot(timesList,acelerationzList)
 plt.title("Aceleraciones en el eje z durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Aceleracion en eje z [G]")
@@ -146,8 +146,8 @@ plt.savefig("Grafica de acelz.pdf")
 plt.show()
 
 
-# Giroscopio
-plt.plot(ltiempo,lgirx)
+# Gyroscope
+plt.plot(timesList,girxList)
 plt.title("Cambios en el angulo del eje x durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Cambio en angulo del eje x [º/s]")
@@ -155,7 +155,7 @@ plt.tight_layout()
 plt.savefig("Grafica de angux.pdf")
 plt.show()
 
-plt.plot(ltiempo,lgiry)
+plt.plot(timesList,giryList)
 plt.title("Cambios en el angulo del eje y durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Cambio en angulo del eje y [º/s]")
@@ -163,7 +163,7 @@ plt.tight_layout()
 plt.savefig("Grafica de anguy.pdf")
 plt.show()
 
-plt.plot(ltiempo,lgirz)
+plt.plot(timesList,girzList)
 plt.title("Cambios en el angulo del eje z durante el vuelo")
 plt.xlabel("Tiempo [s]")
 plt.ylabel("Cambio en angulo del eje z [º/s]")
