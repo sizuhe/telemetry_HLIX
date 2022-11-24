@@ -7,9 +7,8 @@
 
 **Note:** `_Receptor.ino_` and `Transmitter.ino_` should be uploaded to Arduino Uno and Arduino Nano respectively.
 
-</br>
 
-# Components
+# Configuration
 ## Transmitter (Arduino Nano)
 Takes data measured by BMP180 and MPU9250 and sends it through the nRF24L01+ PA/LNA. Data is divided and sent using two data packets (PACKET1 and PACKET2).
 
@@ -27,7 +26,6 @@ Takes data measured by BMP180 and MPU9250 and sends it through the nRF24L01+ PA/
 | D12 | - | - | MISO |
 | - | - | - | IRQ |
 
-
 ## Receptor (Arduino Uno)
 Differentiates incoming data packets and send them through serial communication.
 
@@ -43,13 +41,11 @@ Differentiates incoming data packets and send them through serial communication.
 | D12 | MISO |
 | - | IRQ |
 
-
 ## Data analysis
 `_main.py_` divides incoming serial data by commas, it then graphicates all data.
 
 **Note:** COM port might need to be changed depending on your connections.
 
-</br>
 
 # Notes
 - Time during which data is taken might be infinite (`timeRead = 0`).
