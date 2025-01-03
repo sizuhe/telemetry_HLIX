@@ -13,33 +13,31 @@
 Takes data measured by BMP180 and MPU9250 and sends it through the nRF24L01+ PA/LNA. Data is divided and sent using two data packets (PACKET1 and PACKET2).
 
 ### Connections
-| Arduino Nano | BMP180 | MPU9250 | nRF24L01+ PA/LNA |
-|---|---|---|---|
-| Ground | GND | GND | GND |
-| 5V | VCC | VCC | VCC |
-| A4 | SDA | SDA | - |
-| A5 | SCL | SCL | - |
-| D9 | - | - | CE |
-| D8 | - | - | CSN |
-| D13 | - | - | SCK |
-| D11 | - | - | MOSI |
-| D12 | - | - | MISO |
-| - | - | - | IRQ |
+| **Arduino Nano** | **BMP180** | **MPU9250** | **nRF24L01+ PA/LNA** |
+|:----------------:|:----------:|:-----------:|:--------------------:|
+|        GND       |     GND    |     GND     |          GND         |
+|        5V        |     VCC    |     VCC     |          VCC         |
+|        A4        |     SDA    |     SDA     |           -          |
+|        A5        |     SCL    |     SCL     |           -          |
+|        D8        |      -     |      -      |          CSN         |
+|        D9        |      -     |      -      |          CE          |
+|        D11       |      -     |      -      |         MOSI         |
+|        D12       |      -     |      -      |         MISO         |
+|        D13       |      -     |      -      |          SCK         |
 
 ## Receptor (Arduino Uno)
 Differentiates incoming data packets and send them through serial communication.
 
 ### Connections
-| Arduino Uno | nRF24L01+ PA/LNA |
-|---|---|
-| Ground | GND |
-| 5V | VCC |
-| D9 | CE |
-| D8 | CSN |
-| D13 | SCK |
-| D11 | MOSI |
-| D12 | MISO |
-| - | IRQ |
+| **Arduino Nano** | **nRF24L01+ PA/LNA** |
+|:----------------:|:--------------------:|
+|        GND       |          GND         |
+|        5V        |          VCC         |
+|        D8        |          CSN         |
+|        D9        |          CE          |
+|        D11       |         MOSI         |
+|        D12       |         MISO         |
+|        D13       |          SCK         |
 
 ## Data analysis
 `_main.py_` divides incoming serial data by commas, it then graphicates all data.
